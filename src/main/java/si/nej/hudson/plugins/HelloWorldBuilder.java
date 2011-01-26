@@ -44,6 +44,10 @@ public class HelloWorldBuilder extends Builder {
     // configuration variables
     private final String unicornUrl;
     private final String siteUrl;
+    private final String maxErrorsForStable;
+    private final String maxWarningsForStable;
+    private final String maxErrorsForUnstable;
+    private final String maxWarningsForUnstable;
 
     // constants
     public static final String FILE_UNICORN_STRING_OUTPUT = "unicorn_output.html";
@@ -56,9 +60,15 @@ public class HelloWorldBuilder extends Builder {
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public HelloWorldBuilder(String unicornUrl, String siteUrl) {
+    public HelloWorldBuilder( String unicornUrl, String siteUrl,
+                              String maxErrorsForStable, String maxWarningsForStable,
+                              String maxErrorsForUnstable, String maxWarningsForUnstable) {
         this.unicornUrl = unicornUrl;
         this.siteUrl = siteUrl;
+        this.maxErrorsForStable = maxErrorsForStable;
+        this.maxWarningsForStable = maxWarningsForStable;
+        this.maxErrorsForUnstable = maxErrorsForUnstable;
+        this.maxWarningsForUnstable = maxWarningsForUnstable;
     }
 
     /**
@@ -177,12 +187,23 @@ public class HelloWorldBuilder extends Builder {
         Boolean failed = false;
         Boolean unstable = false;
 
+        System.out.println(this.maxErrorsForStable);
+        System.out.println(this.maxWarningsForStable);
+        System.out.println(this.maxErrorsForUnstable);
+        System.out.println(this.maxWarningsForUnstable);
+
         // WTF ?!
         for (int i=0; i<unicornValidation.getObservers().size(); i++) {
             Observer tmpObserver = (Observer) unicornValidation.getObservers().get(i);
-            if ( tmpObserver.getWarnings() > 0)
+            
+            if ( tmpObserver.getErrors() > Integer.parseInt(this.maxErrorsForStable))
                 unstable = true;
-            if ( tmpObserver.getErrors() > 0)
+            if ( tmpObserver.getWarnings() > Integer.parseInt(this.maxWarningsForStable))
+                unstable = true;
+
+            if ( tmpObserver.getErrors() > Integer.parseInt(this.maxErrorsForUnstable))
+                failed = true;
+            if ( tmpObserver.getWarnings() > Integer.parseInt(this.maxWarningsForUnstable))
                 failed = true;
         }
 

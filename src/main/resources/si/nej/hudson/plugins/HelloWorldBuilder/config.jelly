@@ -15,16 +15,16 @@
   <f:entry title="Site to validate" field="siteUrl">
     <f:textbox />
   </f:entry>
-  <f:entry title="Max number of errors for build to still be stable" field="maxErrorForStable">
+  <f:entry title="Max number of errors for build to still be stable" field="maxErrorsForStable">
     <f:textbox default="0" />
   </f:entry>
   <f:entry title="Max number of warnings for build to still be stable" field="maxWarningsForStable">
     <f:textbox default="10" />
   </f:entry>
-  <f:entry title="Max number of errors for build to still be unstable" field="maxErrorForUnstable">
+  <f:entry title="Max number of errors for build to still be unstable" field="maxErrorsForUnstable">
     <f:textbox default="10" />
   </f:entry>
-  <f:entry title="Max number of warnings for build to still be unstable" field="maxWarningsForUntable">
+  <f:entry title="Max number of warnings for build to still be unstable" field="maxWarningsForUnstable">
     <f:textbox default="25" />
   </f:entry>
 </j:jelly>
