@@ -1,12 +1,16 @@
 package si.nej.hudson.plugins;
 import hudson.Launcher;
 import hudson.Extension;
+import hudson.FilePath;
 import hudson.util.FormValidation;
 import hudson.model.AbstractBuild;
 import hudson.model.BuildListener;
 import hudson.model.AbstractProject;
+import hudson.model.Result;
 import hudson.tasks.Builder;
 import hudson.tasks.BuildStepDescriptor;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -14,6 +18,9 @@ import org.kohsuke.stapler.QueryParameter;
 
 import javax.servlet.ServletException;
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Sample {@link Builder}.
@@ -34,31 +41,79 @@ import java.io.IOException;
  */
 public class HelloWorldBuilder extends Builder {
 
-    private final String name;
+    // configuration variables
+    private final String unicornUrl;
+    private final String siteUrl;
+
+    // constants
+    public static final String FILE_UNICORN_STRING_OUTPUT = "unicorn_output.html";
+    public static final String FILE_UNICORN_ERRORS_APPEND = "_errors.properties";
+    public static final String FILE_UNICORN_WARNINGS_APPEND = "_warnings.properties";
+
+    // temp helper variables
+    private FilePath workspaceRootDir = null;
+    private UnicornValidation unicornValidation = null;
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public HelloWorldBuilder(String name) {
-        this.name = name;
+    public HelloWorldBuilder(String unicornUrl, String siteUrl) {
+        this.unicornUrl = unicornUrl;
+        this.siteUrl = siteUrl;
     }
 
     /**
      * We'll use this from the <tt>config.jelly</tt>.
      */
-    public String getName() {
-        return name;
+    public String getUnicornUrl() {
+        return unicornUrl;
+    }
+
+    public String getSiteUrl() {
+        return siteUrl;
     }
 
     @Override
     public boolean perform(AbstractBuild build, Launcher launcher, BuildListener listener) {
+
+        // workspace path
+        workspaceRootDir = build.getWorkspace();
+
+        // unicorn validation
+        unicornValidation = new UnicornValidation();
+        unicornValidation.setUnicornUrl(unicornUrl);
+        unicornValidation.setSiteUrl(siteUrl);
+
         // this is where you 'build' the project
         // since this is a dummy, we just say 'hello world' and call that a build
-
         // this also shows how you can consult the global configuration of the builder
-        if(getDescriptor().useFrench())
-            listener.getLogger().println("Bonjour, "+name+"!");
-        else
-            listener.getLogger().println("Hello, "+name+"!");
+
+        try {
+            //
+            // UNICORN procedure - start
+            //
+            // klic servica ... return string
+            unicornValidation.callUnicornService();
+            // get observers
+            unicornValidation.parseUnicornObservers();
+            //
+            // UNICORN procedure - end
+            //
+
+            // izpise rezultat v loger
+            listener.getLogger().println(unicornValidation);
+            // shrani rezultat v datoteko za plot
+            saveUnicornResults2File();
+            // shrani datoteko za arhiv ... return true
+            saveUnicornStringOutput();
+            // set build status
+            setBuildStatus(build);
+
+        } catch (MalformedURLException ex) {
+            Logger.getLogger(HelloWorldBuilder.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(HelloWorldBuilder.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
         return true;
     }
 
@@ -68,6 +123,74 @@ public class HelloWorldBuilder extends Builder {
     @Override
     public DescriptorImpl getDescriptor() {
         return (DescriptorImpl)super.getDescriptor();
+    }
+
+    /**
+     * Saves unicorn observers results to multiple files
+     * @throws IOException
+     */
+    private void saveUnicornResults2File() throws IOException {
+
+        for (int i=0; i<unicornValidation.getObservers().size(); i++) {
+            Observer tmpObserver = (Observer) unicornValidation.getObservers().get(i);
+
+            save2File(workspaceRootDir + "/" + tmpObserver.getId() + FILE_UNICORN_ERRORS_APPEND, "YVALUE=" + tmpObserver.getErrors());
+            save2File(workspaceRootDir + "/" + tmpObserver.getId() + FILE_UNICORN_WARNINGS_APPEND, "YVALUE=" + tmpObserver.getWarnings());
+        }
+
+    }
+
+    /**
+     * Simple method that saves given String to File
+     * @param file
+     * @param content
+     * @return
+     */
+    private boolean save2File(String file, String content) {
+
+        try {
+            BufferedWriter out = new BufferedWriter(new FileWriter(file));
+            out.write(content);
+            out.close();
+        } catch (Exception e) {
+            return false;
+        }
+
+        // on success return true
+        return true;
+    }
+
+    /**
+     *
+     * @throws IOException
+     */
+    private void saveUnicornStringOutput() throws IOException {
+        save2File(workspaceRootDir + "/" + FILE_UNICORN_STRING_OUTPUT, unicornValidation.getOutputString());
+    }
+
+    /**
+     * Method that sets the build status according to no. of errors and warnings
+     * @param build
+     */
+    private void setBuildStatus(AbstractBuild build) {
+
+        Boolean failed = false;
+        Boolean unstable = false;
+
+        // WTF ?!
+        for (int i=0; i<unicornValidation.getObservers().size(); i++) {
+            Observer tmpObserver = (Observer) unicornValidation.getObservers().get(i);
+            if ( tmpObserver.getWarnings() > 0)
+                unstable = true;
+            if ( tmpObserver.getErrors() > 0)
+                failed = true;
+        }
+
+        // set status if it was unstable or failed
+        if ( unstable )
+            build.setResult(Result.UNSTABLE);
+        if ( failed )
+            build.setResult(Result.FAILURE);
     }
 
     /**
@@ -97,11 +220,17 @@ public class HelloWorldBuilder extends Builder {
          * @return
          *      Indicates the outcome of the validation. This is sent to the browser.
          */
-        public FormValidation doCheckName(@QueryParameter String value) throws IOException, ServletException {
+        public FormValidation doCheckUnicornUrl(@QueryParameter String value) throws IOException, ServletException {
             if(value.length()==0)
-                return FormValidation.error("Please set a name");
+                return FormValidation.error("Please set the Unicorn service URL");
             if(value.length()<4)
                 return FormValidation.warning("Isn't the name too short?");
+            return FormValidation.ok();
+        }
+
+        public FormValidation doCheckSiteUrl(@QueryParameter String value) throws IOException, ServletException {
+            if(value.length()==0)
+                return FormValidation.error("Please set the correct URL");
             return FormValidation.ok();
         }
 
@@ -114,7 +243,7 @@ public class HelloWorldBuilder extends Builder {
          * This human readable name is used in the configuration screen.
          */
         public String getDisplayName() {
-            return "Say hello world";
+            return "Unicorn Validator";
         }
 
         @Override
