@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  * <p>
  * When the user configures the project and enables this builder,
  * {@link DescriptorImpl#newInstance(StaplerRequest)} is invoked
- * and a new {@link HelloWorldBuilder} is created. The created
+ * and a new {@link UnicornValidationBuilder} is created. The created
  * instance is persisted to the project configuration XML by using
  * XStream, so this allows you to use instance fields (like {@link #name})
  * to remember the configuration.
@@ -39,7 +39,7 @@ import java.util.logging.Logger;
  *
  * @author Kohsuke Kawaguchi
  */
-public class HelloWorldBuilder extends Builder {
+public class UnicornValidationBuilder extends Builder {
 
     // configuration variables
     private final String unicornUrl;
@@ -60,7 +60,7 @@ public class HelloWorldBuilder extends Builder {
 
     // Fields in config.jelly must match the parameter names in the "DataBoundConstructor"
     @DataBoundConstructor
-    public HelloWorldBuilder( String unicornUrl, String siteUrl,
+    public UnicornValidationBuilder( String unicornUrl, String siteUrl,
                               String maxErrorsForStable, String maxWarningsForStable,
                               String maxErrorsForUnstable, String maxWarningsForUnstable) {
         this.unicornUrl = unicornUrl;
@@ -119,9 +119,9 @@ public class HelloWorldBuilder extends Builder {
             setBuildStatus(build);
 
         } catch (MalformedURLException ex) {
-            Logger.getLogger(HelloWorldBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UnicornValidationBuilder.class.getName()).log(Level.SEVERE, null, ex);
         } catch (IOException ex) {
-            Logger.getLogger(HelloWorldBuilder.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(UnicornValidationBuilder.class.getName()).log(Level.SEVERE, null, ex);
         }
 
         return true;
@@ -215,11 +215,11 @@ public class HelloWorldBuilder extends Builder {
     }
 
     /**
-     * Descriptor for {@link HelloWorldBuilder}. Used as a singleton.
+     * Descriptor for {@link UnicornValidationBuilder}. Used as a singleton.
      * The class is marked as public so that it can be accessed from views.
      *
      * <p>
-     * See <tt>views/hudson/plugins/hello_world/HelloWorldBuilder/*.jelly</tt>
+     * See <tt>views/hudson/plugins/hello_world/UnicornValidationBuilder/*.jelly</tt>
      * for the actual HTML fragment for the configuration screen.
      */
     @Extension // this marker indicates Hudson that this is an implementation of an extension point.
