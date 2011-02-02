@@ -19,6 +19,10 @@
       <url>http://maven.glassfish.org/content/groups/public/</url>
     </repository>
   </repositories>
+  
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
 
   <pluginRepositories>
     <pluginRepository>
