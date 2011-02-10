@@ -9,7 +9,7 @@
 
   <groupId>si.nej.hudson.plugins</groupId>
   <artifactId>unicorn</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>0.1.0</version>
   <packaging>hpi</packaging>
 
   <!-- get every artifact through maven.glassfish.org, which proxies all the artifacts that we need -->

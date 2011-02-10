@@ -22,23 +22,6 @@ import java.net.MalformedURLException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Sample {@link Builder}.
- *
- * <p>
- * When the user configures the project and enables this builder,
- * {@link DescriptorImpl#newInstance(StaplerRequest)} is invoked
- * and a new {@link UnicornValidationBuilder} is created. The created
- * instance is persisted to the project configuration XML by using
- * XStream, so this allows you to use instance fields (like {@link #name})
- * to remember the configuration.
- *
- * <p>
- * When a build is performed, the {@link #perform(AbstractBuild, Launcher, BuildListener)} method
- * will be invoked. 
- *
- * @author Kohsuke Kawaguchi
- */
 public class UnicornValidationBuilder extends Builder {
 
     // configuration variables
@@ -92,10 +75,6 @@ public class UnicornValidationBuilder extends Builder {
         unicornValidation = new UnicornValidation();
         unicornValidation.setUnicornUrl(unicornUrl);
         unicornValidation.setSiteUrl(siteUrl);
-
-        // this is where you 'build' the project
-        // since this is a dummy, we just say 'hello world' and call that a build
-        // this also shows how you can consult the global configuration of the builder
 
         try {
             //
@@ -224,14 +203,6 @@ public class UnicornValidationBuilder extends Builder {
      */
     @Extension // this marker indicates Hudson that this is an implementation of an extension point.
     public static final class DescriptorImpl extends BuildStepDescriptor<Builder> {
-        /**
-         * To persist global configuration information,
-         * simply store it in a field and call save().
-         *
-         * <p>
-         * If you don't want fields to be persisted, use <tt>transient</tt>.
-         */
-        private boolean useFrench;
 
         /**
          * Performs on-the-fly validation of the form field 'name'.
@@ -267,23 +238,12 @@ public class UnicornValidationBuilder extends Builder {
             return "Unicorn Validator";
         }
 
+        // remove ?
+        // TODO
         @Override
         public boolean configure(StaplerRequest req, JSONObject formData) throws FormException {
-            // To persist global configuration information,
-            // set that to properties and call save().
-            useFrench = formData.getBoolean("useFrench");
-            // ^Can also use req.bindJSON(this, formData);
-            //  (easier when there are many fields; need set* methods for this, like setUseFrench)
             save();
             return super.configure(req,formData);
         }
-
-        /**
-         * This method returns true if the global configuration says we should speak French.
-         */
-        public boolean useFrench() {
-            return useFrench;
-        }
     }
 }
-
