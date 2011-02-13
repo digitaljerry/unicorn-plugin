@@ -11,7 +11,7 @@
   <artifactId>unicorn</artifactId>
   <version>0.1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
-  <name>Unicorn Validation plugin</name>
+  <name>Unicorn Validation Plugin</name>
   <description>Adds W3C's Unified Validator to Jenkins.</description>
   <url>http://wiki.jenkins-ci.org/display/HUDSON/Unicorn+Plugin</url>
 
@@ -53,7 +53,7 @@
 
   <scm>
     <connection>scm:git:git://github.com:nej/unicorn-plugin.git</connection>
-    <developerConnection>scm:git:git://github.com:nej/unicorn-plugin.git</developerConnection>
+    <developerConnection>scm:git:git@github.com:nej/unicorn-plugin.git</developerConnection>
     <url>http://github.com/nej/unicorn-plugin</url>
   </scm>
 
