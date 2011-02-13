@@ -9,8 +9,19 @@
 
   <groupId>si.nej.hudson.plugins</groupId>
   <artifactId>unicorn</artifactId>
-  <version>0.1.0</version>
+  <version>0.1.0-SNAPSHOT</version>
   <packaging>hpi</packaging>
+  <name>Unicorn Validation plugin</name>
+  <description>Adds W3C's Unified Validator to Jenkins.</description>
+  <url>http://wiki.jenkins-ci.org/display/HUDSON/Unicorn+Plugin</url>
+
+  <developers>
+    <developer>
+      <id>nej</id>
+      <name>Jernej Zorec</name>
+      <email>jernejz@gmail.com</email>
+    </developer>
+  </developers>
 
   <!-- get every artifact through maven.glassfish.org, which proxies all the artifacts that we need -->
   <repositories>
@@ -39,5 +50,11 @@
       <version>1.4.1</version>
     </dependency>
   </dependencies>
-    <name>Unicorn Validation plugin</name>
+
+  <scm>
+    <connection>scm:git:git://github.com:nej/unicorn-plugin.git</connection>
+    <developerConnection>scm:git:git://github.com:nej/unicorn-plugin.git</developerConnection>
+    <url>http://github.com/nej/unicorn-plugin</url>
+  </scm>
+
 </project>
